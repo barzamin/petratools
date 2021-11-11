@@ -1,38 +1,8 @@
 use std::collections::HashMap;
 use cgmath::{Point3, Vector2};
+use peg::{error::ParseError, str::LineCol};
 
-#[derive(Debug)]
-pub struct TexParams {
-    off: Vector2<f32>,
-    rot: f32,
-    scale: Vector2<f32>,
-}
-
-// n = normalize((r - p) × (q - p))
-#[derive(Debug)]
-pub struct BrushPlane {
-    p: Point3<f32>,
-    q: Point3<f32>,
-    r: Point3<f32>,
-    texname: String, // TODO intern lmfao
-    texparams: TexParams,
-}
-
-#[derive(Debug)]
-pub struct Brush {
-    planes: Vec<BrushPlane>,
-}
-
-#[derive(Debug)]
-pub struct Entity {
-    keys: HashMap<String, String>,
-    brushes: Vec<Brush>,
-}
-
-#[derive(Debug)]
-pub struct Map {
-    entities: Vec<Entity>,
-}
+use crate::data::{TexParams, BrushPlane, Brush, Entity, Map};
 
 peg::parser! {
     grammar map_grammar() for str {
@@ -112,6 +82,10 @@ peg::parser! {
                 Map { entities: ents }
             };
     }
+}
+
+pub fn parse(x: impl AsRef<str>) -> Result<Map, ParseError<LineCol>> {
+    map_grammar::map(x.as_ref())
 }
 
 #[cfg(test)]
@@ -252,8 +226,10 @@ r#"// Game: Quake
 "origin" "48 -32 16"
 "angle" "270"
 }"#;
-        let x = map_grammar::map(inp).unwrap();
-        println!("{:#?}", x);
-        panic!();
+        let map = map_grammar::map(inp).unwrap();
+        assert_eq!(map.entities[0].keys["mapversion"], "220");
+        assert_ulps_eq!(map.entities[0].brushes[1].planes[0].p, Point3::new(-16., 0., -16.));
+        assert_eq!(map.entities[2].keys["classname"], "weapon_supershotgun");
+        assert_eq!(map.entities[2].keys["origin"], "48 -32 16");
     }
 }
