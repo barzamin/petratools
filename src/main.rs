@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use structopt::StructOpt;
 use color_eyre::eyre::Result;
 
+mod data;
 mod map;
 
 #[derive(Debug, StructOpt)]
@@ -15,8 +16,9 @@ fn main() -> Result<()> {
     color_eyre::install()?;
     let opts = Opts::from_args();
 
-    let f = std::fs::File::open(opts.input)?;
-
+    let mapfile = std::fs::read_to_string(opts.input)?;
+    let mapfile = map::parse(mapfile)?;
+    println!("{:#?}", mapfile);
 
     Ok(())
 }
