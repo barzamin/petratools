@@ -5,6 +5,8 @@ use color_eyre::eyre::Result;
 
 mod data;
 mod map;
+mod bsptree;
+mod bsp;
 
 #[derive(Debug, StructOpt)]
 struct Opts {
