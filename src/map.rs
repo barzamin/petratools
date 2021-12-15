@@ -18,11 +18,11 @@ peg::parser! {
             }
 
         pub rule commentline() -> String
-            = "//" " "* x:$([^'\n' | '\r']+) { x.to_owned() }
+            = "//" " "* x:$([^'\n' | '\r']*) { x.to_owned() }
 
         pub rule linebreak() = "\n" / "\r\n"; // / ![_];
-        rule whitespace() = [' ' | '\t'];
-        pub rule linesep() = (linebreak() / commentline() / whitespace())+// (![_])?;
+        rule whitespace() = [' ' | '\t']+;
+        pub rule linesep() = (linebreak() / commentline() / whitespace())+;
 
         pub rule keypair() -> (String, String)
             = "\"" k:$([^'"']+) "\"" " "+  "\"" v:$([^'"']+) "\"" { (k.to_owned(), v.to_owned()) }
@@ -73,7 +73,7 @@ peg::parser! {
                 Entity { keys, brushes }
             };
         
-        pub rule map() -> Map
+        pub rule map0() -> Map
             =
               linesep()*
               ents:entity() ++ linesep()
@@ -81,6 +81,8 @@ peg::parser! {
             {
                 Map { entities: ents }
             };
+
+        pub rule map() -> Map = traced(<map0()>);
     }
 }
 
