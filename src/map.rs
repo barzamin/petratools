@@ -232,4 +232,9 @@ r#"// Game: Quake
         assert_eq!(map.entities[2].keys["classname"], "weapon_supershotgun");
         assert_eq!(map.entities[2].keys["origin"], "48 -32 16");
     }
+
+    #[test]
+    fn e1m1() {
+        let map = map_grammar::map(include_str!("../testdata/e1m1.map")).unwrap();
+    }
 }
