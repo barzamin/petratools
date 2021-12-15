@@ -20,9 +20,12 @@ peg::parser! {
         pub rule commentline() -> String
             = "//" " "* x:$([^'\n' | '\r']*) { x.to_owned() }
 
+        rule texturename() -> String
+            = x:$(['*' | '+' | 'a'..='z' | 'A'..='Z' | '0'..='9' | '_']+) { x.to_owned() }
+
         pub rule linebreak() = "\n" / "\r\n"; // / ![_];
-        rule whitespace() = [' ' | '\t']+;
-        pub rule linesep() = (linebreak() / commentline() / whitespace())+;
+        rule whitespace() = [' ' | '\t'];
+        pub rule linesep() = (linebreak() / commentline() / whitespace()+)+;
 
         pub rule keypair() -> (String, String)
             = "\"" k:$([^'"']+) "\"" " "+  "\"" v:$([^'"']+) "\"" { (k.to_owned(), v.to_owned()) }
@@ -34,18 +37,22 @@ peg::parser! {
             / expected!("float")
 
         rule fpoint3() -> Point3<f32>
-            = "( " x:float32() " " y:float32() " " z:float32() " )" { Point3::new(x, y, z) }
+            = "(" whitespace()* x:float32()
+                  whitespace()+ y:float32()
+                  whitespace()+ z:float32()
+                  whitespace()*
+                ")" { Point3::new(x, y, z) }
 
         pub rule brushline() -> BrushPlane
-            = p:fpoint3() " " q:fpoint3() " " r:fpoint3()
-              " " texname:$(['a'..='z' | 'A'..='Z' | '_']+)
-              " " tex_ox:float32() " " tex_oy:float32()
-              " " tex_rot:float32()
-              " " tex_sx:float32() " " tex_sy:float32()
+            = p:fpoint3() whitespace()+ q:fpoint3() whitespace()+ r:fpoint3()
+              whitespace()+ texname:texturename()
+              whitespace()+ tex_ox:float32() whitespace()+ tex_oy:float32()
+              whitespace()+ tex_rot:float32()
+              whitespace()+ tex_sx:float32() whitespace()+ tex_sy:float32()
             {
                 BrushPlane {
                     p, q, r,
-                    texname: texname.to_owned(),
+                    texname,
                     texparams: TexParams {
                         off: Vector2::new(tex_ox, tex_oy),
                         rot: tex_rot,
@@ -237,6 +244,6 @@ r#"// Game: Quake
 
     #[test]
     fn e1m1() {
-        let map = map_grammar::map(include_str!("../testdata/e1m1.map")).unwrap();
+        let map = _map_grammar::map(include_str!("../testdata/e1m1.map")).unwrap();
     }
 }
