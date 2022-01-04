@@ -1,26 +1,26 @@
 use std::collections::HashMap;
-use cgmath::{InnerSpace, Point3, Vector2, Vector3};
+use ultraviolet::{Vec2, Vec3};
 
 #[derive(Debug)]
 pub struct TexParams {
-    pub off: Vector2<f32>,
+    pub off: Vec2,
     pub rot: f32,
-    pub scale: Vector2<f32>,
+    pub scale: Vec2,
 }
 
 #[derive(Debug)]
 pub struct BrushPlane {
-    pub p: Point3<f32>,
-    pub q: Point3<f32>,
-    pub r: Point3<f32>,
+    pub p: Vec3,
+    pub q: Vec3,
+    pub r: Vec3,
     pub texname: String, // TODO intern lmfao
     pub texparams: TexParams,
 }
 
 impl BrushPlane {
     // n = normalize((r - p) × (q - p))
-    pub fn normal(&self) -> Vector3<f32> {
-        (self.r-self.p).cross(self.q-self.p).normalize()
+    pub fn normal(&self) -> Vec3 {
+        (self.r-self.p).cross(self.q-self.p).normalized()
     }
 }
 

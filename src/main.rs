@@ -8,6 +8,8 @@ mod map;
 mod bsptree;
 mod bsp;
 
+mod viz;
+
 #[derive(Debug, StructOpt)]
 struct Opts {
     #[structopt(parse(from_os_str))]
@@ -21,6 +23,8 @@ fn main() -> Result<()> {
     let mapfile = std::fs::read_to_string(opts.input)?;
     let mapfile = map::parse(mapfile)?;
     println!("{:#?}", mapfile);
+
+    viz::viz();
 
     Ok(())
 }

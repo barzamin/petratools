@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use cgmath::{Point3, Vector2};
+use ultraviolet::{Vec3, Vec2};
 use peg::{error::ParseError, str::LineCol};
 
 use crate::data::{TexParams, BrushPlane, Brush, Entity, Map};
@@ -36,12 +36,12 @@ peg::parser! {
             = quiet!{ text:$("-"? ['0'..='9']+ ("." ['0'..='9']*)?) { text.parse().unwrap() } }
             / expected!("float")
 
-        rule fpoint3() -> Point3<f32>
+        rule fpoint3() -> Vec3
             = "(" whitespace()* x:float32()
                   whitespace()+ y:float32()
                   whitespace()+ z:float32()
                   whitespace()*
-                ")" { Point3::new(x, y, z) }
+                ")" { Vec3::new(x, y, z) }
 
         pub rule brushline() -> BrushPlane
             = p:fpoint3() whitespace()+ q:fpoint3() whitespace()+ r:fpoint3()
@@ -54,9 +54,9 @@ peg::parser! {
                     p, q, r,
                     texname,
                     texparams: TexParams {
-                        off: Vector2::new(tex_ox, tex_oy),
+                        off: Vec2::new(tex_ox, tex_oy),
                         rot: tex_rot,
-                        scale: Vector2::new(tex_sx, tex_sy),
+                        scale: Vec2::new(tex_sx, tex_sy),
                     },
                 }
             }
@@ -244,6 +244,6 @@ r#"// Game: Quake
 
     #[test]
     fn e1m1() {
-        let map = _map_grammar::map(include_str!("../testdata/e1m1.map")).unwrap();
+        let _map = map_grammar::map(include_str!("../testdata/e1m1.map")).unwrap();
     }
 }
